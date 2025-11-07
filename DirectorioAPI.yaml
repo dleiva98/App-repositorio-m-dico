@@ -1,0 +1,942 @@
+openapi: 3.0.3
+info:
+  title: "Directorio de Profesionales de la Salud - API"
+  description: "API para conectar a usuarios con profesionales de la salud en México. Permite buscar especialistas por criterios, filtrar por seguros médicos y agendar citas médicas."
+  version: "1.0.0"
+  contact:
+    name: "Team 36 - Miguel Ángel Loya Tarango, Renzo Felipe Chávez Pulgar, Daniel Leiva Sanabria, César Manuel Tirado Peraza"
+    email: "A01796407@tec.mx, A01795959@tec.mx, A01795876@tec.mx, A01795845@tec.mx"
+servers:
+  - url: "https://api.example.com"
+    description: "Servidor de ejemplo"
+paths:
+  /usuarios:
+    get:
+      summary: "Listar todos los usuarios"
+      description: "Obtiene una lista paginada de todos los usuarios registrados en el sistema."
+      parameters:
+        - name: "page"
+          in: "query"
+          required: false
+          description: "Número de página para paginación."
+          schema:
+            type: "integer"
+            default: 1
+        - name: "limit"
+          in: "query"
+          required: false
+          description: "Número de elementos por página."
+          schema:
+            type: "integer"
+            default: 20
+      responses:
+        '200':
+          description: "Lista de usuarios obtenida exitosamente."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  usuarios:
+                    type: "array"
+                    items:
+                      $ref: '#/components/schemas/Usuario'
+                  total:
+                    type: "integer"
+                    description: "Número total de usuarios."
+                  pagina:
+                    type: "integer"
+                    description: "Página actual."
+                  totalPaginas:
+                    type: "integer"
+                    description: "Número total de páginas."
+    post:
+      summary: "Registro de un nuevo usuario"
+      description: "Permite registrar un nuevo usuario proporcionando correo, contraseña y otros datos personales."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '201':
+          description: "Usuario creado satisfactoriamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '400':
+          description: "Error en la solicitud (datos inválidos o usuario ya existente)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El correo ya está registrado."
+
+  /auth/login:
+    post:
+      summary: "Autenticación de usuario"
+      description: "Inicia sesión de un usuario existente con correo y contraseña."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: "Inicio de sesión exitoso."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: "Credenciales inválidas."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "Correo o contraseña incorrectos."
+
+  /usuarios/{userId}:
+    get:
+      summary: "Obtener perfil de usuario"
+      description: "Recupera la información del perfil de un usuario registrado."
+      parameters:
+        - $ref: '#/components/parameters/userIdParam'
+      responses:
+        '200':
+          description: "Datos del perfil de usuario."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '404':
+          description: "Usuario no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El usuario no existe."
+    patch:
+      summary: "Actualizar perfil de usuario"
+      description: "Permite actualizar la información del perfil de un usuario (por ejemplo, correo o contraseña)."
+      parameters:
+        - $ref: '#/components/parameters/userIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioUpdate'
+            example:
+              nombre: "Juan Pérez"
+              correo: "juan.perez@example.com"
+              telefono: "+525512345678"
+      responses:
+        '200':
+          description: "Perfil de usuario actualizado correctamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '400':
+          description: "Datos de perfil inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "Formato de correo inválido."
+        '404':
+          description: "Usuario no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El usuario no existe."
+    delete:
+      summary: "Eliminar cuenta de usuario"
+      description: "Elimina la cuenta de usuario especificada."
+      parameters:
+        - $ref: '#/components/parameters/userIdParam'
+      responses:
+        '200':
+          description: "Cuenta eliminada exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+              example:
+                mensaje: "Cuenta eliminada correctamente."
+        '404':
+          description: "Usuario no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El usuario no existe."
+
+  /usuarios/{userId}/citas:
+    get:
+      summary: "Listar citas de un usuario"
+      description: "Obtiene la lista de citas agendadas por el usuario con el ID especificado."
+      parameters:
+        - $ref: '#/components/parameters/userIdParam'
+      responses:
+        '200':
+          description: "Listado de citas del usuario."
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/Cita'
+        '404':
+          description: "Usuario no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El usuario no existe."
+
+  /profesionales:
+    get:
+      summary: "Búsqueda de profesionales de la salud"
+      description: "Busca profesionales por especialidad, ubicación o nombre, con opción de filtrar por aseguradora o mostrar solo quienes no manejan seguro."
+      parameters:
+        - name: "especialidad"
+          in: "query"
+          required: false
+          description: "Filtrar por especialidad médica del profesional."
+          schema:
+            type: "string"
+        - name: "ubicacion"
+          in: "query"
+          required: false
+          description: "Filtrar por ciudad o ubicación geográfica."
+          schema:
+            type: "string"
+        - name: "nombre"
+          in: "query"
+          required: false
+          description: "Filtrar por nombre del profesional."
+          schema:
+            type: "string"
+        - name: "seguroId"
+          in: "query"
+          required: false
+          description: "Filtrar por identificador de seguro aceptado por el profesional."
+          schema:
+            type: "integer"
+        - name: "sinSeguro"
+          in: "query"
+          required: false
+          description: "Si es 'true', muestra solo profesionales que no trabajan con aseguradoras (privados)."
+          schema:
+            type: "boolean"
+      responses:
+        '200':
+          description: "Lista de profesionales encontrados."
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/ProfesionalSalud'
+        '404':
+          description: "No se encontraron profesionales con los criterios proporcionados."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "No se encontraron profesionales."
+    post:
+      summary: "Registrar nuevo profesional de la salud"
+      description: "Crea un nuevo perfil de profesional de la salud en el sistema."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfesionalSalud'
+      responses:
+        '201':
+          description: "Profesional creado exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfesionalSalud'
+        '400':
+          description: "Datos del profesional inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "Faltan campos obligatorios."
+
+  /profesionales/{profesionalId}:
+    get:
+      summary: "Obtener detalles de un profesional"
+      description: "Obtiene la información detallada del perfil de un profesional de la salud por ID."
+      parameters:
+        - $ref: '#/components/parameters/professionalIdParam'
+      responses:
+        '200':
+          description: "Perfil del profesional."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfesionalSalud'
+        '404':
+          description: "Profesional no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El profesional no existe."
+    patch:
+      summary: "Actualizar perfil de profesional"
+      description: "Permite actualizar la información del perfil de un profesional de la salud."
+      parameters:
+        - $ref: '#/components/parameters/professionalIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfesionalSaludUpdate'
+            example:
+              nombre: "Dra. María González"
+              especialidad: "Cardiología"
+              ubicacion: "Ciudad de México"
+              contacto: "maria.gonzalez@hospital.com"
+      responses:
+        '200':
+          description: "Perfil de profesional actualizado correctamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfesionalSalud'
+        '400':
+          description: "Datos de perfil inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "Formato de datos inválido."
+        '404':
+          description: "Profesional no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El profesional no existe."
+    delete:
+      summary: "Eliminar profesional"
+      description: "Elimina el perfil de un profesional de la salud del sistema."
+      parameters:
+        - $ref: '#/components/parameters/professionalIdParam'
+      responses:
+        '200':
+          description: "Profesional eliminado exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+              example:
+                mensaje: "Profesional eliminado correctamente."
+        '404':
+          description: "Profesional no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El profesional no existe."
+
+  /profesionales/{profesionalId}/citas:
+    get:
+      summary: "Listar citas de un profesional"
+      description: "Obtiene la lista de citas agendadas para el profesional con el ID especificado."
+      parameters:
+        - $ref: '#/components/parameters/professionalIdParam'
+      responses:
+        '200':
+          description: "Listado de citas del profesional."
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/Cita'
+        '404':
+          description: "Profesional no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El profesional no existe."
+
+  /seguros:
+    get:
+      summary: "Listar aseguradoras"
+      description: "Devuelve la lista de compañías de seguros disponibles."
+      responses:
+        '200':
+          description: "Listado de seguros médicos."
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/Seguro'
+        '404':
+          description: "No hay compañías de seguros registradas."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "No hay seguros disponibles."
+    post:
+      summary: "Registrar nueva aseguradora"
+      description: "Agrega una nueva compañía de seguros al sistema."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Seguro'
+      responses:
+        '201':
+          description: "Seguro creado exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seguro'
+        '400':
+          description: "Datos del seguro inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "Faltan campos obligatorios."
+
+  /seguros/{seguroId}:
+    get:
+      summary: "Obtener detalles de un seguro"
+      description: "Obtiene información de una compañía de seguro específica por ID."
+      parameters:
+        - $ref: '#/components/parameters/insuranceIdParam'
+      responses:
+        '200':
+          description: "Información del seguro."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seguro'
+        '404':
+          description: "Seguro no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El seguro especificado no existe."
+    patch:
+      summary: "Actualizar información de seguro"
+      description: "Permite actualizar la información de una compañía de seguros."
+      parameters:
+        - $ref: '#/components/parameters/insuranceIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeguroUpdate'
+            example:
+              nombre: "Nuevo Nombre del Seguro"
+      responses:
+        '200':
+          description: "Seguro actualizado exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seguro'
+        '400':
+          description: "Datos del seguro inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "Formato de datos inválido."
+        '404':
+          description: "Seguro no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El seguro especificado no existe."
+    delete:
+      summary: "Eliminar seguro"
+      description: "Elimina una compañía de seguros del sistema."
+      parameters:
+        - $ref: '#/components/parameters/insuranceIdParam'
+      responses:
+        '200':
+          description: "Seguro eliminado exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+              example:
+                mensaje: "Seguro eliminado correctamente."
+        '404':
+          description: "Seguro no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El seguro especificado no existe."
+
+  /citas:
+    get:
+      summary: "Listar todas las citas"
+      description: "Obtiene una lista paginada de todas las citas médicas en el sistema."
+      parameters:
+        - name: "page"
+          in: "query"
+          required: false
+          description: "Número de página para paginación."
+          schema:
+            type: "integer"
+            default: 1
+        - name: "limit"
+          in: "query"
+          required: false
+          description: "Número de elementos por página."
+          schema:
+            type: "integer"
+            default: 20
+      responses:
+        '200':
+          description: "Lista de citas obtenida exitosamente."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  citas:
+                    type: "array"
+                    items:
+                      $ref: '#/components/schemas/Cita'
+                  total:
+                    type: "integer"
+                    description: "Número total de citas."
+                  pagina:
+                    type: "integer"
+                    description: "Página actual."
+                  totalPaginas:
+                    type: "integer"
+                    description: "Número total de páginas."
+    post:
+      summary: "Agendar una cita médica"
+      description: "Permite a un usuario agendar una cita con un profesional de la salud."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cita'
+            example:
+              usuarioId: 1
+              profesionalId: 5
+              fechaHora: "2025-11-15T10:30:00Z"
+              motivo: "Consulta de seguimiento"
+      responses:
+        '201':
+          description: "Cita creada exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cita'
+        '409':
+          description: "Conflicto al agendar la cita (horario no disponible)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El horario seleccionado no está disponible."
+        '400':
+          description: "Solicitud inválida para agendar cita."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "Faltan datos obligatorios para agendar la cita."
+
+  /citas/{citaId}:
+    get:
+      summary: "Obtener detalles de una cita"
+      description: "Recupera la información detallada de una cita médica por ID."
+      parameters:
+        - $ref: '#/components/parameters/appointmentIdParam'
+      responses:
+        '200':
+          description: "Detalles de la cita médica."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cita'
+        '404':
+          description: "Cita no encontrada."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "La cita especificada no existe."
+    patch:
+      summary: "Actualizar una cita médica"
+      description: "Permite actualizar la información de una cita médica existente."
+      parameters:
+        - $ref: '#/components/parameters/appointmentIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CitaUpdate'
+            example:
+              fechaHora: "2025-11-15T14:30:00Z"
+              motivo: "Cambio de horario por emergencia"
+      responses:
+        '200':
+          description: "Cita actualizada exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cita'
+        '400':
+          description: "Datos de actualización inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "La fecha no puede ser en el pasado."
+        '404':
+          description: "Cita no encontrada."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "La cita especificada no existe."
+        '409':
+          description: "Conflicto al actualizar la cita."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "El nuevo horario no está disponible."
+    delete:
+      summary: "Eliminar una cita médica"
+      description: "Cancela y elimina una cita médica existente."
+      parameters:
+        - $ref: '#/components/parameters/appointmentIdParam'
+      responses:
+        '200':
+          description: "Cita eliminada exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MensajeRespuesta'
+              example:
+                mensaje: "Cita cancelada y eliminada correctamente."
+        '404':
+          description: "Cita no encontrada."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "La cita especificada no existe."
+        '410':
+          description: "Cita no puede ser eliminada."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                mensaje: "No se puede eliminar una cita que ya ha ocurrido."
+
+components:
+  parameters:
+    userIdParam:
+      name: "userId"
+      in: "path"
+      required: true
+      schema:
+        type: "integer"
+      description: "ID del usuario."
+    professionalIdParam:
+      name: "profesionalId"
+      in: "path"
+      required: true
+      schema:
+        type: "integer"
+      description: "ID del profesional de la salud."
+    insuranceIdParam:
+      name: "seguroId"
+      in: "path"
+      required: true
+      schema:
+        type: "integer"
+      description: "ID del seguro médico."
+    appointmentIdParam:
+      name: "citaId"
+      in: "path"
+      required: true
+      schema:
+        type: "integer"
+      description: "ID de la cita médica."
+
+  schemas:
+    Usuario:
+      type: "object"
+      description: "Representa a un usuario registrado en el sistema."
+      required:
+        - nombre
+        - correo
+        - contrasena
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+          description: "ID único del usuario."
+          readOnly: true
+        nombre:
+          type: "string"
+          description: "Nombre completo del usuario."
+        correo:
+          type: "string"
+          format: "email"
+          description: "Correo electrónico del usuario."
+        contrasena:
+          type: "string"
+          format: "password"
+          description: "Contraseña del usuario."
+          writeOnly: true
+        telefono:
+          type: "string"
+          description: "Número de teléfono del usuario."
+          nullable: true
+
+    UsuarioUpdate:
+      type: "object"
+      description: "Esquema para actualizar un usuario existente."
+      properties:
+        nombre:
+          type: "string"
+          description: "Nombre completo del usuario."
+        correo:
+          type: "string"
+          format: "email"
+          description: "Correo electrónico del usuario."
+        telefono:
+          type: "string"
+          description: "Número de teléfono del usuario."
+          nullable: true
+
+    ProfesionalSalud:
+      type: "object"
+      description: "Perfil de un profesional de la salud."
+      required:
+        - nombre
+        - especialidad
+        - ubicacion
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+          description: "ID único del profesional."
+          readOnly: true
+        nombre:
+          type: "string"
+          description: "Nombre del profesional."
+        especialidad:
+          type: "string"
+          description: "Especialidad médica o campo del profesional."
+        ubicacion:
+          type: "string"
+          description: "Ciudad o ubicación donde ofrece sus servicios."
+        contacto:
+          type: "string"
+          description: "Información de contacto (teléfono o email) del profesional."
+        segurosAceptados:
+          type: "array"
+          description: "Lista de seguros médicos aceptados por el profesional. Vacío si solo trabaja de manera privada."
+          items:
+            $ref: '#/components/schemas/Seguro'
+
+    ProfesionalSaludUpdate:
+      type: "object"
+      description: "Esquema para actualizar un profesional de la salud."
+      properties:
+        nombre:
+          type: "string"
+          description: "Nombre del profesional."
+        especialidad:
+          type: "string"
+          description: "Especialidad médica o campo del profesional."
+        ubicacion:
+          type: "string"
+          description: "Ciudad o ubicación donde ofrece sus servicios."
+        contacto:
+          type: "string"
+          description: "Información de contacto (teléfono o email) del profesional."
+        segurosAceptados:
+          type: "array"
+          description: "Lista de seguros médicos aceptados por el profesional."
+          items:
+            $ref: '#/components/schemas/Seguro'
+
+    Seguro:
+      type: "object"
+      description: "Compañía de seguro médico."
+      required:
+        - nombre
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+          description: "ID único del seguro."
+          readOnly: true
+        nombre:
+          type: "string"
+          description: "Nombre de la compañía aseguradora."
+
+    SeguroUpdate:
+      type: "object"
+      description: "Esquema para actualizar un seguro médico."
+      properties:
+        nombre:
+          type: "string"
+          description: "Nombre de la compañía aseguradora."
+
+    Cita:
+      type: "object"
+      description: "Representa una cita médica agendada entre un usuario y un profesional."
+      required:
+        - usuarioId
+        - profesionalId
+        - fechaHora
+      properties:
+        id:
+          type: "integer"
+          format: "int64"
+          description: "ID único de la cita."
+          readOnly: true
+        usuarioId:
+          type: "integer"
+          description: "ID del usuario que agenda la cita."
+          writeOnly: true
+        profesionalId:
+          type: "integer"
+          description: "ID del profesional con quien se agenda la cita."
+          writeOnly: true
+        fechaHora:
+          type: "string"
+          format: "date-time"
+          description: "Fecha y hora de la cita programada."
+        motivo:
+          type: "string"
+          description: "Motivo o razón de la consulta."
+        usuario:
+          $ref: '#/components/schemas/Usuario'
+          description: "Datos del usuario que reservó la cita."
+          readOnly: true
+        profesional:
+          $ref: '#/components/schemas/ProfesionalSalud'
+          description: "Datos del profesional con quien se reservó la cita."
+          readOnly: true
+
+    CitaUpdate:
+      type: "object"
+      description: "Esquema para actualizar una cita existente."
+      properties:
+        fechaHora:
+          type: "string"
+          format: "date-time"
+          description: "Nueva fecha y hora para la cita."
+        motivo:
+          type: "string"
+          description: "Nuevo motivo o razón de la consulta."
+
+    LoginInput:
+      type: "object"
+      description: "Credenciales de inicio de sesión."
+      required:
+        - correo
+        - contrasena
+      properties:
+        correo:
+          type: "string"
+          format: "email"
+          description: "Correo electrónico del usuario."
+        contrasena:
+          type: "string"
+          format: "password"
+          description: "Contraseña del usuario."
+
+    LoginResponse:
+      type: "object"
+      description: "Respuesta de autenticación exitosa, incluyendo token de acceso."
+      properties:
+        token:
+          type: "string"
+          description: "Token JWT de autenticación para el usuario."
+        usuario:
+          $ref: '#/components/schemas/Usuario'
+          description: "Datos del usuario autenticado."
+
+    Error:
+      type: "object"
+      description: "Respuesta de error estándar."
+      properties:
+        mensaje:
+          type: "string"
+          description: "Descripción del error ocurrido."
+        codigo:
+          type: "integer"
+          description: "Código de estado HTTP asociado al error."
+
+    MensajeRespuesta:
+      type: "object"
+      description: "Respuesta con mensaje informativo."
+      properties:
+        mensaje:
+          type: "string"
+          description: "Mensaje descriptivo de la operación."
