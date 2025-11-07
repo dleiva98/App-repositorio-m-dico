@@ -67,8 +67,8 @@ INSERT INTO profesional_seguro (profesional_id, seguro_id) VALUES
 (3, 5);                  -- Dr. Carlos López acepta GNP
 
 INSERT INTO usuarios (nombre, correo, contrasena, telefono) VALUES 
-('Ana López', 'ana@example.com', 'hashed_password_1', '+525512345678'),
-('Roberto Martínez', 'roberto@example.com', 'hashed_password_2', '+525598765432');
+('Ana López', 'ana@example.com', '$2b$10$K8Lx7QbQ3w2V2Q2V2Q2V2u2V2Q2V2Q2V2Q2V2Q2V2Q2V2Q2V2Q2V2', '+525512345678'),
+('Roberto Martínez', 'roberto@example.com', '$2b$10$K8Lx7QbQ3w2V2Q2V2Q2V2u2V2Q2V2Q2V2Q2V2Q2V2Q2V2Q2V2Q2V2', '+525598765432');
 
 INSERT INTO citas (usuario_id, profesional_id, fecha_hora, motivo) VALUES
 (1, 1, '2025-11-15 10:30:00', 'Consulta de seguimiento'),
