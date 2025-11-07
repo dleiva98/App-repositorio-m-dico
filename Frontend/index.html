@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Directorio de Profesionales de la Salud</title>
-    <link href="https://cdn.jsdelivr.net/npm/[email protected]/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .card {
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .professional-card {
-            border-left: 4px solid #28a745;
+            border-left: 4px solid #007bff;
         }
         .appointment-card {
             border-left: 4px solid #007bff;
@@ -25,6 +25,9 @@
         }
         .navbar-brand {
             font-weight: bold;
+        }
+        body {
+            background-color: #dceeff;
         }
     </style>
 </head>
@@ -52,33 +55,29 @@
             <!-- Columna Izquierda: Gestión de Usuarios -->
             <div class="col-md-4">
                 <!-- Registro de Usuario -->
-                <div class="card">
-                    <div class="card-header bg-success text-white">
+                <div class="card" id="registerCard">
+                    <div class="card-header bg-info text-white">
                         <h5 class="mb-0">👤 Registro de Usuario</h5>
                     </div>
                     <div class="card-body">
                         <form id="userForm">
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Nombre completo *</label>
-                                <input type="text" class="form-control" id="nombre" required 
-                                       placeholder="Ingrese su nombre completo">
+                                <input type="text" class="form-control" id="nombre" required placeholder="Ingrese su nombre completo">
                             </div>
                             <div class="mb-3">
                                 <label for="correo" class="form-label">Correo electrónico *</label>
-                                <input type="email" class="form-control" id="correo" required 
-                                       placeholder="ejemplo@correo.com">
+                                <input type="email" class="form-control" id="correo" required placeholder="ejemplo@correo.com">
                             </div>
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña *</label>
-                                <input type="password" class="form-control" id="contrasena" required 
-                                       placeholder="Mínimo 6 caracteres">
+                                <input type="password" class="form-control" id="contrasena" required placeholder="Mínimo 6 caracteres">
                             </div>
                             <div class="mb-3">
                                 <label for="telefono" class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="telefono" 
-                                       placeholder="+525512345678">
+                                <input type="tel" class="form-control" id="telefono" placeholder="+525512345678">
                             </div>
-                            <button type="submit" class="btn btn-success w-100" id="btnRegister">
+                            <button type="submit" class="btn btn-primary w-100" id="btnRegister">
                                 <span id="btnRegisterText">Registrarse</span>
                                 <div id="btnRegisterSpinner" class="spinner-border spinner-border-sm d-none" role="status">
                                     <span class="visually-hidden">Cargando...</span>
@@ -89,7 +88,7 @@
                 </div>
 
                 <!-- Login -->
-                <div class="card">
+                <div class="card" id="loginCard">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">🔐 Iniciar Sesión</h5>
                     </div>
@@ -125,25 +124,22 @@
             <div class="col-md-4">
                 <!-- Búsqueda de Profesionales -->
                 <div class="card">
-                    <div class="card-header bg-warning text-dark">
+                    <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">🔍 Buscar Profesionales</h5>
                     </div>
                     <div class="card-body">
                         <form id="searchForm">
                             <div class="mb-3">
                                 <label for="especialidad" class="form-label">Especialidad</label>
-                                <input type="text" class="form-control" id="especialidad" 
-                                       placeholder="Ej: Cardiología, Pediatría...">
+                                <input type="text" class="form-control" id="especialidad" placeholder="Ej: Cardiología, Pediatría...">
                             </div>
                             <div class="mb-3">
                                 <label for="ubicacion" class="form-label">Ubicación</label>
-                                <input type="text" class="form-control" id="ubicacion" 
-                                       placeholder="Ej: Ciudad de México, Guadalajara...">
+                                <input type="text" class="form-control" id="ubicacion" placeholder="Ej: Ciudad de México, Guadalajara...">
                             </div>
                             <div class="mb-3">
                                 <label for="nombreProfesional" class="form-label">Nombre del profesional</label>
-                                <input type="text" class="form-control" id="nombreProfesional" 
-                                       placeholder="Ej: Dr. Juan Pérez">
+                                <input type="text" class="form-control" id="nombreProfesional" placeholder="Ej: Dr. Juan Pérez">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Filtros de Seguro</label>
@@ -154,14 +150,14 @@
                                     </label>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-warning w-100">Buscar Profesionales</button>
+                            <button type="submit" class="btn btn-primary w-100">Buscar Profesionales</button>
                         </form>
                     </div>
                 </div>
 
                 <!-- Resultados de Búsqueda -->
                 <div class="card hidden" id="resultsCard">
-                    <div class="card-header bg-success text-white">
+                    <div class="card-header bg-info text-white">
                         <h5 class="mb-0">📋 Profesionales Encontrados</h5>
                     </div>
                     <div class="card-body">
@@ -190,10 +186,9 @@
                             </div>
                             <div class="mb-3">
                                 <label for="motivo" class="form-label">Motivo de la consulta</label>
-                                <textarea class="form-control" id="motivo" rows="3" 
-                                          placeholder="Describa el motivo de su consulta"></textarea>
+                                <textarea class="form-control" id="motivo" rows="3" placeholder="Describa el motivo de su consulta"></textarea>
                             </div>
-                            <button type="submit" class="btn btn-info w-100" id="btnAgendar">
+                            <button type="submit" class="btn btn-primary w-100" id="btnAgendar">
                                 <span id="btnAgendarText">Agendar Cita</span>
                                 <div id="btnAgendarSpinner" class="spinner-border spinner-border-sm d-none" role="status">
                                     <span class="visually-hidden">Cargando...</span>
@@ -207,7 +202,7 @@
                 </div>
 
                 <!-- Citas Agendadas -->
-                <div class="card">
+                <div class="card hidden" id="citasCard">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">📝 Citas Agendadas</h5>
                     </div>
@@ -249,8 +244,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/[email protected]/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/[email protected]/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     
     <script>
@@ -309,22 +304,17 @@
         document.getElementById('userForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = document.getElementById('btnRegister');
-            
-            const userData = {
-                nombre: document.getElementById('nombre').value,
-                correo: document.getElementById('correo').value,
-                contrasena: document.getElementById('contrasena').value,
-                telefono: document.getElementById('telefono').value || null
-            };
-            
             try {
                 setLoading(submitButton, true, 'Registrando...');
-                
+                const userData = {
+                    nombre: document.getElementById('nombre').value,
+                    correo: document.getElementById('correo').value,
+                    contrasena: document.getElementById('contrasena').value,
+                    telefono: document.getElementById('telefono').value || null
+                };
                 const response = await axios.post(`${API_BASE_URL}/usuarios`, userData);
-                
                 showAlert('✅ Usuario registrado exitosamente. Ahora puede iniciar sesión.', 'success');
                 document.getElementById('userForm').reset();
-                
             } catch (error) {
                 console.error('Error registrando usuario:', error);
                 const errorMessage = error.response?.data?.mensaje || 'Error al registrar usuario';
@@ -337,26 +327,22 @@
         // Login de usuario
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const loginData = {
-                correo: document.getElementById('loginCorreo').value,
-                contrasena: document.getElementById('loginContrasena').value
-            };
-            
             try {
+                const loginData = {
+                    correo: document.getElementById('loginCorreo').value,
+                    contrasena: document.getElementById('loginContrasena').value
+                };
                 const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData);
-                
                 currentUser = response.data.usuario;
                 token = response.data.token;
-                
-                // Guardar en localStorage
+                // Guardar token y usuario en almacenamiento local
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(currentUser));
-                
+                // Configurar token para próximas peticiones
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                 showAlert('✅ Inicio de sesión exitoso', 'success');
                 updateUserInterface();
                 loadCitas();
-                
             } catch (error) {
                 console.error('Error en login:', error);
                 const errorMessage = error.response?.data?.mensaje || 'Error en inicio de sesión';
@@ -370,61 +356,50 @@
             token = null;
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            delete axios.defaults.headers.common['Authorization'];
             updateUserInterface();
             showAlert('👋 Sesión cerrada correctamente', 'info');
         });
 
         // Actualizar interfaz de usuario
         function updateUserInterface() {
+            const registerCard = document.getElementById('registerCard');
+            const loginCard = document.getElementById('loginCard');
+            const citasCard = document.getElementById('citasCard');
             if (currentUser && token) {
                 userInfoCard.classList.remove('hidden');
+                registerCard.classList.add('hidden');
+                loginCard.classList.add('hidden');
+                citasCard.classList.remove('hidden');
                 document.getElementById('userInfoName').textContent = currentUser.nombre;
                 document.getElementById('userInfoEmail').textContent = currentUser.correo;
                 document.getElementById('loginForm').reset();
             } else {
                 userInfoCard.classList.add('hidden');
+                registerCard.classList.remove('hidden');
+                loginCard.classList.remove('hidden');
+                citasCard.classList.add('hidden');
             }
         }
-
-        function updateUserInterface() {
-            if (currentUser && token) {
-            userInfoCard.classList.remove('hidden');
-            // OCULTAR formularios de registro y login
-            document.getElementById('userForm').parentElement.style.display = 'none';
-            document.getElementById('loginForm').parentElement.style.display = 'none';
-            } else {
-                userInfoCard.classList.add('hidden');
-                // MOSTRAR formularios de registro y login  
-                document.getElementById('userForm').parentElement.style.display = 'block';
-                document.getElementById('loginForm').parentElement.style.display = 'block';
-    }
-}
 
         // ==================== BÚSQUEDA DE PROFESIONALES ====================
 
         // Búsqueda de profesionales
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const searchParams = {
                 especialidad: document.getElementById('especialidad').value,
                 ubicacion: document.getElementById('ubicacion').value,
                 nombre: document.getElementById('nombreProfesional').value,
                 sinSeguro: document.getElementById('sinSeguro').checked ? 'true' : undefined
             };
-            
             // Eliminar parámetros vacíos
             Object.keys(searchParams).forEach(key => {
                 if (!searchParams[key]) delete searchParams[key];
             });
-            
             try {
-                const response = await axios.get(`${API_BASE_URL}/profesionales`, {
-                    params: searchParams
-                });
-                
+                const response = await axios.get(`${API_BASE_URL}/profesionales`, { params: searchParams });
                 displayProfessionals(response.data);
-                
             } catch (error) {
                 console.error('Error buscando profesionales:', error);
                 if (error.response?.status === 404) {
@@ -439,7 +414,6 @@
         // Mostrar resultados de profesionales
         function displayProfessionals(professionals) {
             const resultsContainer = document.getElementById('searchResults');
-            
             if (professionals.length === 0) {
                 resultsContainer.innerHTML = `
                     <div class="alert alert-info">
@@ -458,7 +432,7 @@
                             </p>
                             <p class="card-text">
                                 <strong>Seguros aceptados:</strong><br>
-                                ${prof.segurosAceptados.length > 0 
+                                ${prof.segurosAceptados.length > 0
                                     ? prof.segurosAceptados.map(s => 
                                         `<span class="badge bg-secondary me-1">${s.nombre}</span>`
                                       ).join('')
@@ -472,7 +446,6 @@
                     </div>
                 `).join('');
             }
-            
             resultsCard.classList.remove('hidden');
         }
 
@@ -484,7 +457,6 @@
                 showAlert('⚠️ Debe iniciar sesión para agendar una cita', 'warning');
                 return;
             }
-            
             document.getElementById('profesionalId').value = profesionalId;
             document.getElementById('profesionalNombre').textContent = profesionalNombre;
             appointmentCard.classList.remove('hidden');
@@ -494,24 +466,19 @@
         document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = document.getElementById('btnAgendar');
-            
-            const appointmentData = {
-                usuarioId: currentUser.id,
-                profesionalId: parseInt(document.getElementById('profesionalId').value),
-                fechaHora: document.getElementById('fechaHora').value.replace('T', ' ') + ':00',
-                motivo: document.getElementById('motivo').value || null
-            };
-            
             try {
                 setLoading(submitButton, true, 'Agendando...');
-                
+                const appointmentData = {
+                    usuarioId: currentUser.id,
+                    profesionalId: parseInt(document.getElementById('profesionalId').value),
+                    fechaHora: document.getElementById('fechaHora').value.replace('T', ' ') + ':00',
+                    motivo: document.getElementById('motivo').value || null
+                };
                 const response = await axios.post(`${API_BASE_URL}/citas`, appointmentData);
-                
                 showAlert('✅ Cita agendada exitosamente', 'success');
                 document.getElementById('appointmentForm').reset();
                 appointmentCard.classList.add('hidden');
                 loadCitas(); // Recargar lista de citas
-                
             } catch (error) {
                 console.error('Error agendando cita:', error);
                 const errorMessage = error.response?.data?.mensaje || 'Error al agendar cita';
@@ -532,20 +499,16 @@
             const loadingElement = document.getElementById('loadingCitas');
             const citasList = document.getElementById('citasList');
             const emptyElement = document.getElementById('emptyCitas');
-            
             try {
                 loadingElement.classList.remove('d-none');
                 citasList.classList.add('d-none');
                 emptyElement.classList.add('d-none');
-                
                 const response = await axios.get(`${API_BASE_URL}/citas?limit=10`);
-                
                 if (response.data.citas.length > 0) {
                     displayCitas(response.data.citas);
                 } else {
                     showEmptyCitas();
                 }
-                
             } catch (error) {
                 console.error('Error cargando citas:', error);
                 showEmptyCitas();
@@ -557,7 +520,6 @@
         function displayCitas(citas) {
             const citasList = document.getElementById('citasList');
             const emptyElement = document.getElementById('emptyCitas');
-            
             citasList.innerHTML = citas.map(cita => `
                 <div class="card appointment-card mb-2">
                     <div class="card-body">
@@ -570,7 +532,6 @@
                     </div>
                 </div>
             `).join('');
-            
             citasList.classList.remove('d-none');
             emptyElement.classList.add('d-none');
         }
@@ -578,7 +539,6 @@
         function showEmptyCitas() {
             const citasList = document.getElementById('citasList');
             const emptyElement = document.getElementById('emptyCitas');
-            
             citasList.classList.add('d-none');
             emptyElement.classList.remove('d-none');
         }
@@ -589,9 +549,10 @@
         function checkExistingSession() {
             const savedToken = localStorage.getItem('token');
             const savedUser = localStorage.getItem('user');
-            
             if (savedToken && savedUser) {
                 token = savedToken;
+                // Restaurar encabezado Authorization
+                axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
                 currentUser = JSON.parse(savedUser);
                 updateUserInterface();
                 loadCitas();
@@ -601,9 +562,13 @@
         // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', () => {
             checkExistingSession();
-            loadCitas();
-            showAlert('🚀 Directorio de Salud cargado. Use el formulario de registro o inicio de sesión para comenzar.', 'info');
+            if (!currentUser) {
+                showAlert('🚀 Directorio de Salud cargado. Use el formulario de registro o inicio de sesión para comenzar.', 'info');
+            }
         });
     </script>
+</body>
+</html>
+
 </body>
 </html>
