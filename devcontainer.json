@@ -1,0 +1,13 @@
+{
+    "name": "Directorio Salud API",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+    "features": {
+        "ghcr.io/devcontainers/features/mysql:1": {
+            "version": "8.0",
+            "rootPassword": "password"
+        }
+    },
+    "forwardPorts": [3000, 3306],
+    "postCreateCommand": "cd backend && npm install && mysql -u root -ppassword -e 'CREATE DATABASE IF NOT EXISTS directorio_salud;'",
+    "postStartCommand": "cd backend && mysql -u root -ppassword directorio_salud < init.sql && npm start"
+}
