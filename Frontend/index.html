@@ -386,6 +386,20 @@
             }
         }
 
+        function updateUserInterface() {
+            if (currentUser && token) {
+            userInfoCard.classList.remove('hidden');
+            // OCULTAR formularios de registro y login
+            document.getElementById('userForm').parentElement.style.display = 'none';
+            document.getElementById('loginForm').parentElement.style.display = 'none';
+            } else {
+                userInfoCard.classList.add('hidden');
+                // MOSTRAR formularios de registro y login  
+                document.getElementById('userForm').parentElement.style.display = 'block';
+                document.getElementById('loginForm').parentElement.style.display = 'block';
+    }
+}
+
         // ==================== BÚSQUEDA DE PROFESIONALES ====================
 
         // Búsqueda de profesionales
